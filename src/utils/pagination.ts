@@ -42,7 +42,9 @@ export type QueryOptions = Pick<PaginateOptions, "select" | "sort" | "populate">
  *         description: Fields to select separated by spaces
  */
 export function extractPaginateOptions(object: any): PaginateOptions {
-    const { pagination } = object;
+
+    const pagination = object; //Modifica codice sorgente {}
+    
     if (!pagination) {
         return {};
     }

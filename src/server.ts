@@ -13,6 +13,7 @@ import { UserService } from "@services/UserService";
 import { Route } from "@routes/Route";
 import { AuthRoute } from "@routes/AuthRoute";
 import { UserRoute } from "@routes/UserRoute";
+import { VehicleRoute } from "@routes/VehicleRoute";
 
 import { MONGO_URI } from "@utils/mongo";
 import { logger } from "@utils/winston";
@@ -29,6 +30,7 @@ export class ExpressServer {
     routes: Route[] = [
         ioc.resolve(AuthRoute),
         ioc.resolve(UserRoute),
+        ioc.resolve(VehicleRoute),
     ];
 
     constructor(

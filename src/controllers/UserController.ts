@@ -83,8 +83,15 @@ export class UserController {
         return res.status(200).send({ message: "Password updated successfully" });
     }
 
-    public async deleteById(req: Request, res: Response) {
+    public async deleteById(req: Request, res: Response) {    // Modifica codice sorgente (Da if a return)
+        if (!req.params.id) {
+            throw new httpErrors.BadRequest("Missing id in path params");
+        }
 
+        await this.authService.adminOnly(req);
+        const deleted = await this.userService.deleteById(req.params.id);
+
+        return res.status(200).send(deleted);
     }
 
 }
