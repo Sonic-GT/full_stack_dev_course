@@ -33,8 +33,26 @@ export class VehicleController {
     public async find(req: Request, res: Response) {
         //await this.authService.adminOnly(req);
         const pagination = extractPaginateOptions(req.body);
-        
-        const result = await this.vehicleService.paginate(req.body.query, pagination);
+
+        const result = await this.vehicleService.paginate(req.body.query, pagination);  //req.body.query == undefined
+
+        result.docs = result.docs.filter(( obj ) => {
+            return obj.isVisible === true;
+        });
+
+        return res.status(200).send(result);
+    }
+
+    public async findInTrash(req: Request, res: Response) {
+        //await this.authService.adminOnly(req);
+        const pagination = extractPaginateOptions(req.body);
+
+        const result = await this.vehicleService.paginate(req.body.query, pagination);  //req.body.query == undefined
+
+        result.docs = result.docs.filter(( obj ) => {
+            return obj.isVisible === false;
+        });
+
         return res.status(200).send(result);
     }
 
@@ -66,6 +84,14 @@ export class VehicleController {
         const safedeleted = await this.vehicleService.updateById(req.params.id, safedel);
 
         return res.status(200).send(safedeleted);
+    }
+
+    public async restoreById(req: Request, res: Response) {
+
+        const restore = {isVisible: true};
+        const restored = await this.vehicleService.updateById(req.params.id, restore);
+
+        return res.status(200).send(restored);
     }
 
     // public async updateMe(req: Request, res: Response) {

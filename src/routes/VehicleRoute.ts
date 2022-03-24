@@ -23,6 +23,10 @@ export class VehicleRoute implements Route {
         app.post("/vehicle/query", (req, res) => {
             this.vehicleController.find(req, res);
         });
+
+        app.post("/vehicle/trash", (req, res) => {
+            this.vehicleController.findInTrash(req, res);
+        });
         
         app.post("/vehicle/:id", (req, res) => {
             this.vehicleController.findById(req, res);
@@ -34,6 +38,10 @@ export class VehicleRoute implements Route {
 
         app.put("/vehicle/safe_del/:id", (req, res) => {
             this.vehicleController.safedelById(req, res);
+        })
+
+        app.put("/vehicle/restore/:id", (req, res) => {
+            this.vehicleController.restoreById(req, res);
         })
 
         // app.post("/user/register", (req, res) => {
