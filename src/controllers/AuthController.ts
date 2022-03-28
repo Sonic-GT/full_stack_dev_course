@@ -28,4 +28,10 @@ export class AuthController {
         return res.status(200).send(user);
     }
 
+    async obtain_id(req: Request, res: Response) {
+        const id_utente: string = await (await this.authService.getIdFromRequest(req));
+        //console.log(id_utente);
+        return (id_utente);
+    }
+
 }

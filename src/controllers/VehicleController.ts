@@ -7,11 +7,13 @@ import { vehicleDecoder } from "@models/VehicleModel";
 import { AuthService } from "@services/AuthService";
 import { extractPaginateOptions } from "@utils/pagination";
 import httpErrors from "http-errors";
+import { AuthController } from "@controllers/AuthController";
 
 @provide(VehicleController)
 export class VehicleController {
 
     @inject(AuthService) private authService: AuthService;
+    @inject(AuthController) private authController: AuthController;
     @inject(VehicleService) private vehicleService: VehicleService;
 
     // public async create(req: Request, res: Response) {
@@ -25,32 +27,54 @@ export class VehicleController {
 
     public async create(req: Request, res: Response) {
         const vehicle = vehicleDecoder.runWithException(req.body);
-        const saved = await this.vehicleService.save(req.body);
+        vehicle.user_id = await this.authController.obtain_id(req, res);
+        const saved = await this.vehicleService.save(vehicle);
 
         return res.status(201).send(saved);
     }
 
     public async find(req: Request, res: Response) {
         //await this.authService.adminOnly(req);
-        const pagination = extractPaginateOptions(req.body);
+        let richiesta = req.body
+        
+        if (richiesta === undefined) {
+            richiesta = {};
+        } else if (richiesta.page === undefined) {
+            richiesta.page = "1";
+        }
 
-        const result = await this.vehicleService.paginate(req.body.query, pagination);  //req.body.query == undefined
+        const pagination = extractPaginateOptions(richiesta);
 
+        const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
+        const user_id = await this.authController.obtain_id(req, res);
+        
         result.docs = result.docs.filter(( obj ) => {
-            return obj.isVisible === true;
+            //return (obj.isVisible === true);
+            //console.log(obj.isVisible === true && obj.user_id === await this.authController.obtain_id(req, res));
+            return (obj.isVisible === true && obj.user_id === user_id)
         });
+        console.log(result.docs);
 
         return res.status(200).send(result);
     }
 
     public async findInTrash(req: Request, res: Response) {
+        let richiesta = req.body
+        
+        if (richiesta === undefined) {
+            richiesta = {};
+        } else if (richiesta.page === undefined) {
+            richiesta.page = "1";
+        }
+        
         //await this.authService.adminOnly(req);
-        const pagination = extractPaginateOptions(req.body);
+        const pagination = extractPaginateOptions(richiesta);
 
-        const result = await this.vehicleService.paginate(req.body.query, pagination);  //req.body.query == undefined
+        const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
+        const user_id = await this.authController.obtain_id(req, res);
 
         result.docs = result.docs.filter(( obj ) => {
-            return obj.isVisible === false;
+            return (obj.isVisible === false && obj.user_id === user_id)
         });
 
         return res.status(200).send(result);
@@ -63,6 +87,10 @@ export class VehicleController {
 
         //await this.authService.adminOnly(req);
         const obj = await this.vehicleService.findById(req.params.id);
+        const user_id = await this.authController.obtain_id(req, res);
+        if (obj.user_id !== user_id){
+            return res.status(401);
+        }
 
         return res.status(200).send(obj);
     }
@@ -73,12 +101,26 @@ export class VehicleController {
         }
 
         //await this.authService.adminOnly(req);
+        const obj = await this.vehicleService.findById(req.params.id);
+        const user_id = await this.authController.obtain_id(req, res);
+        if (obj.user_id !== user_id){
+            return res.status(401);
+        }
         const updated = await this.vehicleService.updateById(req.params.id, req.body);
 
         return res.status(200).send(updated);
     }
 
     public async safedelById(req: Request, res: Response) {
+        if (!req.params.id) {
+            throw new httpErrors.BadRequest("Missing id in path params");
+        }
+
+        const obj = await this.vehicleService.findById(req.params.id);
+        const user_id = await this.authController.obtain_id(req, res);
+        if (obj.user_id !== user_id){
+            return res.status(401);
+        }
 
         const safedel = {isVisible: false};
         const safedeleted = await this.vehicleService.updateById(req.params.id, safedel);
@@ -87,6 +129,15 @@ export class VehicleController {
     }
 
     public async restoreById(req: Request, res: Response) {
+        if (!req.params.id) {
+            throw new httpErrors.BadRequest("Missing id in path params");
+        }
+        
+        const obj = await this.vehicleService.findById(req.params.id);
+        const user_id = await this.authController.obtain_id(req, res);
+        if (obj.user_id !== user_id){
+            return res.status(401);
+        }
 
         const restore = {isVisible: true};
         const restored = await this.vehicleService.updateById(req.params.id, restore);
@@ -120,6 +171,12 @@ export class VehicleController {
     public async deleteById(req: Request, res: Response) {
         if (!req.params.id) {
             throw new httpErrors.BadRequest("Missing id in path params");
+        }
+
+        const obj = await this.vehicleService.findById(req.params.id);
+        const user_id = await this.authController.obtain_id(req, res);
+        if (obj.user_id !== user_id){
+            return res.status(401);
         }
 
         //await this.authService.adminOnly(req);

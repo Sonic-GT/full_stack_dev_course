@@ -124,8 +124,20 @@ export class AuthService {
         }
     }
 
+    public async getIdByToken(token: string): Promise<any> {
+        try {
+            return await this.decodeToken(token).userId;
+        } catch (err) {
+            throw new httpErrors.NotFound(err);
+        }
+    }
+
     public async getUserFromRequest(req: Request): Promise<UserDocument> {
         return this.getUserByToken(req.headers.authorization);
+    }
+
+    public async getIdFromRequest(req: Request): Promise<any>{
+        return this.getIdByToken(req.headers.authorization);
     }
 
     public async roleOnly(req: Request, role: UserRoles) {

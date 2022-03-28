@@ -11,6 +11,7 @@ export enum FuelType {
 }
 
 export interface Vehicle {
+    user_id?: string 
     plate: string
     manufacturer: string
     cc: number
@@ -28,6 +29,7 @@ export interface Vehicle {
 export interface VehicleDocument extends Vehicle, Document {
 }
 export const vehicleDecoder: Decoder<Vehicle> = object({
+    user_id: optional(string()),
     plate: string(),
     manufacturer: string(),
     cc: number(),
@@ -48,31 +50,34 @@ export const vehicleDecoder: Decoder<Vehicle> = object({
 });
 
 export const VehicleSchema = new Schema<Vehicle>({
+    user_id: {
+        type: String,
+    },
     plate: {
         type: String,
-        required: [true, "It's required"],
+        required: [true, "Plate is required"],
         unique: true,
     },
     manufacturer: {
         type: String,
-        required: [true, "It's required"],
+        required: [true, "Manufacturer is required"],
     },
     cc: {
         type: Number,
-        required: [true, "It's required"],
+        required: [true, "CC is required"],
     },
     carModel: {
         type: String,
-        required: [true, "It's required"],
+        required: [true, "CarModel is required"],
     },
     seats: {
         type: Number,
-        required: [true, "It's required"],
+        required: [true, "Seats is required"],
     },
     fuel: {
         type: [String],
         enum: [FuelType.DISEL, FuelType.PETROL, FuelType.GPL],
-        required: [true, "It's required"],
+        required: [true, "Fuel is required"],
     },
     km: {
         type: Number,
@@ -80,19 +85,19 @@ export const VehicleSchema = new Schema<Vehicle>({
     },
     matriculationDate: {
         type: String,
-        required: [true, "It's required"],
+        required: [true, "MatriculationDate is required"],
     },
     color: {
         type: String,
-        required: [true, "It's required"],
+        required: [true, "Color is required"],
     },
     hasABS: {
         type: Boolean,
-        required: [true, "It's required"],
+        required: [true, "HasABS is required"],
     },
     notes: {
         type: String,
-        required: [true, "It's required"],
+        required: [true, "Notes are required"],
     },
     isUsed: {
         type: Boolean,

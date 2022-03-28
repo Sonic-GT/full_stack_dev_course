@@ -1,8 +1,9 @@
 import Express from "express";
 import { provide } from "inversify-binding-decorators";
-import { inject } from "inversify";
+import { id, inject } from "inversify";
 import { Route } from "./Route";
 import { AuthController } from "@controllers/AuthController";
+import passport from "passport";
 
 @provide(AuthRoute)
 export class AuthRoute implements Route {
@@ -59,7 +60,7 @@ export class AuthRoute implements Route {
          *       401:
          *         $ref: "#/responses/Unauthorized"
          */
-        app.post("/auth/me", (req, res) => {
+        app.post("/auth/me", passport.authenticate("jwt", {session: false}), (req, res) => {
             this.authController.me(req, res);
         });
     }
