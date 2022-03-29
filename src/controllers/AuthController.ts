@@ -29,9 +29,11 @@ export class AuthController {
     }
 
     async obtain_id(req: Request, res: Response) {
-        const id_utente: string = await (await this.authService.getIdFromRequest(req));
-        //console.log(id_utente);
-        return (id_utente);
+        const user = await this.authService.getUserFromRequest(req);
+        const id_utente: string = user.id;
+        const is_admin: boolean = user.isAdmin();
+        //console.log(id_utente, is_admin);
+        return {id_utente, is_admin};
     }
 
 }

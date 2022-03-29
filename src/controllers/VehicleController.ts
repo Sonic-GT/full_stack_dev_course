@@ -27,7 +27,7 @@ export class VehicleController {
 
     public async create(req: Request, res: Response) {
         const vehicle = vehicleDecoder.runWithException(req.body);
-        vehicle.user_id = await this.authController.obtain_id(req, res);
+        vehicle.user_id = (await this.authController.obtain_id(req, res)).id_utente;
         const saved = await this.vehicleService.save(vehicle);
 
         return res.status(201).send(saved);
@@ -46,14 +46,14 @@ export class VehicleController {
         const pagination = extractPaginateOptions(richiesta);
 
         const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
-        const user_id = await this.authController.obtain_id(req, res);
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
         
         result.docs = result.docs.filter(( obj ) => {
             //return (obj.isVisible === true);
-            //console.log(obj.isVisible === true && obj.user_id === await this.authController.obtain_id(req, res));
-            return (obj.isVisible === true && obj.user_id === user_id)
+            //console.log(obj.isVisible === true && obj.user_id === await this.authController.obtain_id(req, res)).id_utente;
+            return (obj.isVisible === true && (obj.user_id === user_id || is_admin))
         });
-        console.log(result.docs);
 
         return res.status(200).send(result);
     }
@@ -71,10 +71,11 @@ export class VehicleController {
         const pagination = extractPaginateOptions(richiesta);
 
         const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
-        const user_id = await this.authController.obtain_id(req, res);
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
 
         result.docs = result.docs.filter(( obj ) => {
-            return (obj.isVisible === false && obj.user_id === user_id)
+            return (obj.isVisible === false && (obj.user_id === user_id || is_admin))
         });
 
         return res.status(200).send(result);
@@ -87,8 +88,10 @@ export class VehicleController {
 
         //await this.authService.adminOnly(req);
         const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = await this.authController.obtain_id(req, res);
-        if (obj.user_id !== user_id){
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+        if (obj.user_id !== user_id && !is_admin){
             return res.status(401);
         }
 
@@ -102,8 +105,10 @@ export class VehicleController {
 
         //await this.authService.adminOnly(req);
         const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = await this.authController.obtain_id(req, res);
-        if (obj.user_id !== user_id){
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+        if (obj.user_id !== user_id && !is_admin){
             return res.status(401);
         }
         const updated = await this.vehicleService.updateById(req.params.id, req.body);
@@ -117,8 +122,10 @@ export class VehicleController {
         }
 
         const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = await this.authController.obtain_id(req, res);
-        if (obj.user_id !== user_id){
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+        if (obj.user_id !== user_id && !is_admin){
             return res.status(401);
         }
 
@@ -134,8 +141,10 @@ export class VehicleController {
         }
         
         const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = await this.authController.obtain_id(req, res);
-        if (obj.user_id !== user_id){
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+        if (obj.user_id !== user_id && !is_admin){
             return res.status(401);
         }
 
@@ -174,8 +183,10 @@ export class VehicleController {
         }
 
         const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = await this.authController.obtain_id(req, res);
-        if (obj.user_id !== user_id){
+        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+        if (obj.user_id !== user_id && !is_admin){
             return res.status(401);
         }
 
