@@ -17,59 +17,31 @@ export class VehicleRoute implements Route {
         // });
 
         app.post("/vehicle", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.create(req, res); //Modifica register => create
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.create(req, res); //Modifica register => create
         });
 
         app.post("/vehicle/query", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.find(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.find(req, res);
         });
 
         app.post("/vehicle/trash", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.findInTrash(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.findInTrash(req, res);
         });
         
         app.post("/vehicle/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.findById(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.findById(req, res);
         });
 
         app.put("/vehicle/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.updateById(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.updateById(req, res);
         });
 
         app.put("/vehicle/safe_del/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.safedelById(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.safedelById(req, res);
         })
 
         app.put("/vehicle/restore/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.restoreById(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.restoreById(req, res);
         })
 
         // app.post("/user/register", (req, res) => {
@@ -81,11 +53,7 @@ export class VehicleRoute implements Route {
         // });
 
         app.delete("/vehicle/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            try {
-                this.vehicleController.deleteById(req, res);
-            } catch (error) {
-                res.status(error.statusCode).json({error})
-            }
+            this.vehicleController.deleteById(req, res);
         });
     }
 

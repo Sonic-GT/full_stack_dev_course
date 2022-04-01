@@ -26,132 +26,160 @@ export class VehicleController {
     // }
 
     public async create(req: Request, res: Response) {
-        const vehicle = vehicleDecoder.runWithException(req.body);
-        vehicle.user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const saved = await this.vehicleService.save(vehicle);
+        try {
+            const vehicle = vehicleDecoder.runWithException(req.body);
+            vehicle.user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const saved = await this.vehicleService.save(vehicle);
 
-        return res.status(201).send(saved);
+            return res.status(201).send(saved);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
+        }
     }
 
     public async find(req: Request, res: Response) {
-        //await this.authService.adminOnly(req);
-        let richiesta = req.body
-        
-        if (richiesta === undefined) {
-            richiesta = {};
-        } else if (richiesta.page === undefined) {
-            richiesta.page = "1";
+        try{
+            //await this.authService.adminOnly(req);
+            let richiesta = req.body
+            
+            if (richiesta === undefined) {
+                richiesta = {};
+            } else if (richiesta.page === undefined) {
+                richiesta.page = "1";
+            }
+
+            const pagination = extractPaginateOptions(richiesta);
+
+            const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+            
+            result.docs = result.docs.filter(( obj ) => {
+                //return (obj.isVisible === true);
+                //console.log(obj.isVisible === true && obj.user_id === await this.authController.obtain_id(req, res)).id_utente;
+                return (obj.isVisible === true && (obj.user_id === user_id || is_admin))
+            });
+
+            return res.status(200).send(result);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-
-        const pagination = extractPaginateOptions(richiesta);
-
-        const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-        
-        result.docs = result.docs.filter(( obj ) => {
-            //return (obj.isVisible === true);
-            //console.log(obj.isVisible === true && obj.user_id === await this.authController.obtain_id(req, res)).id_utente;
-            return (obj.isVisible === true && (obj.user_id === user_id || is_admin))
-        });
-
-        return res.status(200).send(result);
     }
 
     public async findInTrash(req: Request, res: Response) {
-        let richiesta = req.body
-        
-        if (richiesta === undefined) {
-            richiesta = {};
-        } else if (richiesta.page === undefined) {
-            richiesta.page = "1";
+        try{
+            let richiesta = req.body
+            
+            if (richiesta === undefined) {
+                richiesta = {};
+            } else if (richiesta.page === undefined) {
+                richiesta.page = "1";
+            }
+            
+            //await this.authService.adminOnly(req);
+            const pagination = extractPaginateOptions(richiesta);
+
+            const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+            result.docs = result.docs.filter(( obj ) => {
+                return (obj.isVisible === false && (obj.user_id === user_id || is_admin))
+            });
+
+            return res.status(200).send(result);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-        
-        //await this.authService.adminOnly(req);
-        const pagination = extractPaginateOptions(richiesta);
-
-        const result = await this.vehicleService.paginate(richiesta.query, pagination);  //req.body.query == undefined
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-
-        result.docs = result.docs.filter(( obj ) => {
-            return (obj.isVisible === false && (obj.user_id === user_id || is_admin))
-        });
-
-        return res.status(200).send(result);
     }
 
     public async findById(req: Request, res: Response) {
-        if (!req.params.id) {
-            throw new httpErrors.BadRequest("Missing id in path params");
+        try{
+            if (!req.params.id) {
+                throw new httpErrors.BadRequest("Missing id in path params");
+            }
+
+            //await this.authService.adminOnly(req);
+            const obj = await this.vehicleService.findById(req.params.id);
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+            if (obj.user_id !== user_id && !is_admin){
+                return res.status(401);
+            }
+
+            return res.status(200).send(obj);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-
-        //await this.authService.adminOnly(req);
-        const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-
-        if (obj.user_id !== user_id && !is_admin){
-            return res.status(401);
-        }
-
-        return res.status(200).send(obj);
     }
 
     public async updateById(req: Request, res: Response) {
-        if (!req.params.id) {
-            throw new httpErrors.BadRequest("Missing id in path params");
+        try{
+            if (!req.params.id) {
+                throw new httpErrors.BadRequest("Missing id in path params");
+            }
+
+            //await this.authService.adminOnly(req);
+            const obj = await this.vehicleService.findById(req.params.id);
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+            if (obj.user_id !== user_id && !is_admin){
+                return res.status(401);
+            }
+            const updated = await this.vehicleService.updateById(req.params.id, req.body);
+
+            return res.status(200).send(updated);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-
-        //await this.authService.adminOnly(req);
-        const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-
-        if (obj.user_id !== user_id && !is_admin){
-            return res.status(401);
-        }
-        const updated = await this.vehicleService.updateById(req.params.id, req.body);
-
-        return res.status(200).send(updated);
     }
 
     public async safedelById(req: Request, res: Response) {
-        if (!req.params.id) {
-            throw new httpErrors.BadRequest("Missing id in path params");
+        try{
+            if (!req.params.id) {
+                throw new httpErrors.BadRequest("Missing id in path params");
+            }
+
+            const obj = await this.vehicleService.findById(req.params.id);
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+            if (obj.user_id !== user_id && !is_admin){
+                return res.status(401);
+            }
+
+            const safedel = {isVisible: false};
+            const safedeleted = await this.vehicleService.updateById(req.params.id, safedel);
+
+            return res.status(200).send(safedeleted);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-
-        const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-
-        if (obj.user_id !== user_id && !is_admin){
-            return res.status(401);
-        }
-
-        const safedel = {isVisible: false};
-        const safedeleted = await this.vehicleService.updateById(req.params.id, safedel);
-
-        return res.status(200).send(safedeleted);
     }
 
     public async restoreById(req: Request, res: Response) {
-        if (!req.params.id) {
-            throw new httpErrors.BadRequest("Missing id in path params");
+        try{
+            if (!req.params.id) {
+                throw new httpErrors.BadRequest("Missing id in path params");
+            }
+            
+            const obj = await this.vehicleService.findById(req.params.id);
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+            if (obj.user_id !== user_id && !is_admin){
+                return res.status(401);
+            }
+
+            const restore = {isVisible: true};
+            const restored = await this.vehicleService.updateById(req.params.id, restore);
+
+            return res.status(200).send(restored);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-        
-        const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-
-        if (obj.user_id !== user_id && !is_admin){
-            return res.status(401);
-        }
-
-        const restore = {isVisible: true};
-        const restored = await this.vehicleService.updateById(req.params.id, restore);
-
-        return res.status(200).send(restored);
     }
 
     // public async updateMe(req: Request, res: Response) {
@@ -178,22 +206,26 @@ export class VehicleController {
     // }
 
     public async deleteById(req: Request, res: Response) {
-        if (!req.params.id) {
-            throw new httpErrors.BadRequest("Missing id in path params");
+        try{
+            if (!req.params.id) {
+                throw new httpErrors.BadRequest("Missing id in path params");
+            }
+
+            const obj = await this.vehicleService.findById(req.params.id);
+            const user_id = (await this.authController.obtain_id(req, res)).id_utente;
+            const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
+
+            if (obj.user_id !== user_id && !is_admin){
+                return res.status(401);
+            }
+
+            //await this.authService.adminOnly(req);
+            const deleted = await this.vehicleService.deleteById(req.params.id);
+
+            return res.status(200).send(deleted);
+        } catch (error) {
+            res.status(error.statusCode).json({error})
         }
-
-        const obj = await this.vehicleService.findById(req.params.id);
-        const user_id = (await this.authController.obtain_id(req, res)).id_utente;
-        const is_admin = (await this.authController.obtain_id(req, res)).is_admin;
-
-        if (obj.user_id !== user_id && !is_admin){
-            return res.status(401);
-        }
-
-        //await this.authService.adminOnly(req);
-        const deleted = await this.vehicleService.deleteById(req.params.id);
-
-        return res.status(200).send(deleted);
     }
 
 }
