@@ -45,7 +45,11 @@ export class UserRoute implements Route {
          *         description: Email and username must be unique
          */
         app.post("/user", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.userController.create(req, res);
+            try {
+                this.userController.create(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -79,7 +83,11 @@ export class UserRoute implements Route {
          *         $ref: "#/responses/Forbidden"
          */
         app.post("/user/query", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.userController.find(req, res);
+            try {
+                this.userController.find(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -112,7 +120,11 @@ export class UserRoute implements Route {
          *         $ref: "#/responses/Forbidden"
          */
         app.post("/user/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.userController.findById(req, res);
+            try {
+                this.userController.findById(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -149,7 +161,11 @@ export class UserRoute implements Route {
          *         $ref: "#/responses/Forbidden"
          */
         app.put("/user/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.userController.updateById(req, res);
+            try {
+                this.userController.updateById(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -182,7 +198,11 @@ export class UserRoute implements Route {
          *         description: Email and username must be unique
          */
         app.post("/user/register", (req, res) => {
-            this.userController.register(req, res);
+            try {
+                this.userController.register(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -212,7 +232,11 @@ export class UserRoute implements Route {
          *         $ref: "#/responses/Unauthorized"
          */
         app.post("/user/register", (req, res) => {
-            this.userController.updatePassword(req, res);
+            try {
+                this.userController.updatePassword(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -243,7 +267,11 @@ export class UserRoute implements Route {
          *         $ref: "#/responses/Unauthorized"
          */
         app.put("/user/update/me", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.userController.updateMe(req, res);
+            try{
+                this.userController.updateMe(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -276,7 +304,11 @@ export class UserRoute implements Route {
          *         $ref: "#/responses/Forbidden"
          */
         app.delete("/user/:id", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.userController.deleteById(req, res);
+            try {
+                this.userController.deleteById(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
     }
 

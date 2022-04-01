@@ -35,7 +35,11 @@ export class AuthRoute implements Route {
          *         description: Login failed. Invalid username/email or password
          */
         app.post("/auth/login", (req, res) => {
-            this.authController.login(req, res);
+            try {
+                this.authController.login(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
 
         /**
@@ -61,7 +65,11 @@ export class AuthRoute implements Route {
          *         $ref: "#/responses/Unauthorized"
          */
         app.post("/auth/me", passport.authenticate("jwt", {session: false}), (req, res) => {
-            this.authController.me(req, res);
+            try {
+                this.authController.me(req, res);
+            } catch (error) {
+                res.status(error.statusCode).json({error})
+            }
         });
     }
 
