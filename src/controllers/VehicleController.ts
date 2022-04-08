@@ -33,7 +33,7 @@ export class VehicleController {
 
             return res.status(201).send(saved);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -62,7 +62,7 @@ export class VehicleController {
 
             return res.status(200).send(result);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -89,7 +89,7 @@ export class VehicleController {
 
             return res.status(200).send(result);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -110,7 +110,7 @@ export class VehicleController {
 
             return res.status(200).send(obj);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -132,7 +132,7 @@ export class VehicleController {
 
             return res.status(200).send(updated);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -155,7 +155,7 @@ export class VehicleController {
 
             return res.status(200).send(safedeleted);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -178,7 +178,7 @@ export class VehicleController {
 
             return res.status(200).send(restored);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
@@ -224,7 +224,7 @@ export class VehicleController {
 
             return res.status(200).send(deleted);
         } catch (error) {
-            res.status(error.statusCode).json({error})
+            return res.status(400).json({error})
         }
     }
 
